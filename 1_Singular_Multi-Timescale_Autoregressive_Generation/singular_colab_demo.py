@@ -1,11 +1,12 @@
 """
 ================================================================================
-            SINGULAR-SSM: LIVE INTERACTIVE GOOGLE COLAB DEMONSTRATION
+          SINGULAR-SSM: LIVE INTERACTIVE LOCAL & GOOGLE COLAB DEMO
 ================================================================================
 
-This script is fully self-contained and designed to be copied and run directly 
-in a Google Colab notebook (CPU or GPU). It runs a live, interactive proof-of-concept
-for the Singular-SSM Event-Triggered Change-Detection (ETCD) gating mechanism.
+This script is fully self-contained and designed to be run directly on local 
+machines (supporting CPU, CUDA, or Apple Silicon MPS) or copied into a Google Colab 
+notebook. It runs a live, interactive proof-of-concept for the Singular-SSM 
+Event-Triggered Change-Detection (ETCD) gating mechanism.
 
 Key Verification:
   1. Calibrates the ETCD threshold on a standard text.
@@ -108,7 +109,12 @@ def run_demo():
     print(f"{BOLD}         SINGULAR-SSM: EVENT-TRIGGERED SYSTEM 2 DELIBERATION DEMO{RESET}")
     print(f"{BOLD}{'='*80}{RESET}")
     
-    device = "cuda" if torch.cuda.is_available() else "cpu"
+    if torch.cuda.is_available():
+        device = "cuda"
+    elif torch.backends.mps.is_available():
+        device = "mps"
+    else:
+        device = "cpu"
     print(f"[*] Running on device: {BOLD}{device.upper()}{RESET}")
     print(f"[*] Loading lightweight Mamba model: {BOLD}{MODEL_NAME}{RESET}...")
     
