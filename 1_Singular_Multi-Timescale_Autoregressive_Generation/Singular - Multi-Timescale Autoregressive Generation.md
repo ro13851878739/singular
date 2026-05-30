@@ -1,7 +1,6 @@
 # Singular: Multi-Timescale Autoregressive Generation
 
 **Subject Area:** Deep Learning Architectures, Cognitive Scaling Laws, and Non-Linear Dynamical Systems  
-
 **Authors:** Luo Peng<sup>[orcid](https://orcid.org/0009-0007-1771-5757)</sup>, Chen Yanan  
 **Affiliation:** Nanjing University of Science and Technology, Nanjing, China  
 **Contact:** ro13851878739@gmail.com, narychen@yeah.net  
