@@ -82,7 +82,11 @@ $$\epsilon \cdot \dot{y}(t) = \mathbf{A}_{\text{fast}}(t) y(t) + \mathbf{B}_{\te
 $$\omega_{\text{fast}}(t) = \mathbf{C}_{\text{fast}}(t) y(t)$$
 
 where $\epsilon = \frac{f_{\text{cognitive}}}{f_{\text{token}}} = 0.04 \ll 1$ structures the small singular perturbation parameter, yielding a slow cognitive operational frequency of $f_{\text{cognitive}} = \epsilon \cdot f_{\text{token}} = 0.04 \times 50\text{ Hz} = 2\text{ Hz}$. Here, $u(t)$ is the incoming sensory token embedding stream, and $\omega_{\text{fast}}(t) \in \mathbb{R}^{d_s}$ is the fast token descriptor. Here, $\tau_{\min} = 0.04\text{ s}$ represents the strictly positive dwell-time lower bound to prevent Zeno behavior. To formalize the true event-triggered interrupt mechanism (allowing high-surprise updates to trigger immediately), the switching timestamps $t_{T+1}$ are not rigidly pre-determined, but are dynamically defined as:
-$$t_{T+1} = \inf \left\{ t \ge t_T + \tau_{\min} \mid \Delta_{\text{semantic}}(t) \gt \Gamma_0 \lor \text{Connector}(u(t)) \lor t - t_T \ge \Delta_{\text{slow}}(T) \right\}$$
+
+$$
+t_{T+1} = \inf \left\lbrace t \ge t_T + \tau_{\min} \mid \Delta_{\text{semantic}}(t) \gt \Gamma_0 \lor \text{Connector}(u(t)) \lor t - t_T \ge \Delta_{\text{slow}}(T) \right\rbrace
+$$
+
 starting from $t_0 = 0$. Here, $\Delta_{\text{slow}}(T)$ represents the maximum time-triggered epoch duration for interval $T$, computed dynamically at the start of the epoch via integrated prediction error:
 $$\Delta_{\text{slow}}(T) = \max\left( \tau_{\min}, \Delta_0 \cdot \exp\left( -\gamma_0 \int_{t_{T-1}}^{t_T} \|u(s) - \hat{u}(s)\|^2 ds \right) \right), \quad T \ge 1$$
 with $\Delta_{\text{slow}}(0) = \Delta_0$. Here, $e_{\text{pred}}(t) = \|u(t) - \hat{u}(t)\|^2$ represents the instantaneous prediction error of next-token logits, and $\Delta_0 = 0.5\text{ s}$ is the nominal cognitive epoch (corresponding to a $2\text{ Hz}$ slow-rate base frequency). This formulation is designed to ensure that higher prediction surprise (larger integrated error) decreases the epoch duration $\Delta_{\text{slow}}(T)$, accelerating the slow-rate cognitive re-anchoring when context shifts. To establish the mathematical validity of the coupled two-timescale system, we introduce two standard dynamical assumptions:
@@ -91,7 +95,11 @@ with $\Delta_{\text{slow}}(0) = \Delta_0$. Here, $e_{\text{pred}}(t) = \|u(t) - 
 
 Under these assumptions, we invoke **Tikhonov’s Singular Perturbation Theorem** [10] to establish timescale decoupling:
 * **Theorem 1 (Tikhonov Decoupling Convergence):** As the singular perturbation parameter $\epsilon \to 0$, the fast boundary-layer dynamics $y(t)$ exponentially converge to a unique, exponentially stable slow invariant manifold:
-  $$y(t) \to h(x) = -\mathbf{A}_{\text{fast}}^{-1} \mathbf{B}_{\text{fast}} u(t)$$
+
+  $$
+  y(t) \to h(x) = -\mathbf{A}_{\text{fast}}^{-1} \mathbf{B}_{\text{fast}} u(t)
+  $$
+
   for all $t \in (t_T, t_{T+1})$.
 
 <figure id="fig2">
@@ -101,7 +109,11 @@ Under these assumptions, we invoke **Tikhonov’s Singular Perturbation Theorem*
 
 Furthermore, to ensure under the stated assumptions that the hybrid discrete-continuous switching system does not exhibit pathological infinite switching in a finite interval and that the fast states have sufficient time to settle onto the slow manifold, we establish two stability conditions:
 * **Assumption 3 (Boundary-Layer Settling Time):** To ensure that the boundary-layer trajectories $y(t)$ successfully converge to a small $\delta$-neighborhood of the slow invariant manifold $h(x)$ within each macro-interval before any subsequent event can trigger, the biophysical dwell-time lower bound $\tau_{\min}$ is structurally constrained to satisfy:
-  $$\tau_{\min} \ge C_{\text{conv}} \cdot \epsilon \cdot \ln\left(\frac{1}{\delta}\right)$$
+
+  $$
+  \tau_{\min} \ge C_{\text{conv}} \cdot \epsilon \cdot \ln\left(\frac{1}{\delta}\right)
+  $$
+
   where $C_{\text{conv}} > 0$ is the fast system's decay constant (inversely proportional to the contractive margin $\alpha_K$) and $\delta > 0$ represents the design-time boundary-layer neighborhood thickness (e.g., $\delta = 10^{-3}$). In practice, this inequality is treated as a design constraint rather than a literal numerical scaling with the worst-case contractive margin $\alpha_K$, and the exact numerical calibration of $\tau_{\min}$ should be determined by the post-training convergence rate or empirical spectral bounds.
 * **Lemma 1 (Zeno-free Event Gating & Manifold Settling):** Let the integrated prediction error be bounded. Under the exponential decay clock (Equation 5) and Assumption 3, the slow macro-intervals $t_{T+1} - t_T$ are strictly lower-bounded by $\tau_{\min} \ge C_{\text{conv}} \epsilon \ln(1/\delta) > 0$ for all $T \ge 0$. This mathematically renders Zeno behavior impossible, while establishing that the fast boundary-layer states successfully converge onto the slow semantic invariant manifold during every active epoch before a new interrupt is permitted.
 
@@ -253,13 +265,25 @@ Crucially, our analysis indicates that this computation reduction does not neces
 
 ### A. Core Mathematical Metrics
 1. **Normalized Embedding Cosine Deviation (NECD):** Measures the information tracking lag between the modulated multi-timescale hidden state trajectory and an idealized monolithic reference model ($H_{\text{ref}}^{(l)}$) evaluating the full parameter stack synchronously at 50Hz:
-   $$\text{NECD}(t) = 1 - \frac{\langle \tilde{H}_f^{(l)}(t), H_{\text{ref}}^{(l)}(t) \rangle}{\|\tilde{H}_f^{(l)}(t)\| \|H_{\text{ref}}^{(l)}(t)\|}$$
+
+   $$
+   \text{NECD}(t) = 1 - \frac{\langle \tilde{H}_f^{(l)}(t), H_{\text{ref}}^{(l)}(t) \rangle}{\|\tilde{H}_f^{(l)}(t)\| \|H_{\text{ref}}^{(l)}(t)\|}
+   $$
+
 2. **Contextual Perplexity Variance (CPV):** Quantifies the structural volatility of the output next-token log-probabilities under abrupt context boundaries. Under a unit-variance isotropic Gaussian observation model, $\ln P(x_t \mid x_{<t}, \tilde{H}_f)$ is approximated by the negative mean squared error $-\frac{1}{d}\|u(t) - \tilde{H}_f(t)\|^2$, yielding the simulation-computable surrogate:
-   $$\text{CPV} = \text{Var}\left( \ln P(x_t \mid x_{<t}, \tilde{H}_f) \right) \approx \text{Var}\left( -\tfrac{1}{d}\|u(t) - \tilde{H}_f(t)\|^2 \right)$$
+
+   $$
+   \text{CPV} = \text{Var}\left( \ln P(x_t \mid x_{<t}, \tilde{H}_f) \right) \approx \text{Var}\left( -\tfrac{1}{d}\|u(t) - \tilde{H}_f(t)\|^2 \right)
+   $$
+
    Crucially, CPV serves as a structural surrogate proxy characterizing the topological volatility of the log-probability manifold under perturbations, rather than a direct semantic measure of downstream task success or factual correctness. It must be interpreted bidirectionally to reflect the trade-off between closed-loop sequence stability and exploratory representation entropy. The target CPV operating range is bounded by two heuristic constraints: (i) **upper bound**—the CPV must be strictly less than the monolithic baseline's variance, confirming that chaotic sensitivity to input perturbations is suppressed; (ii) **lower bound**—the CPV must exceed the variance floor set by the system's process noise power ($\sigma^2_{\text{proc}}$), as a CPV approaching zero implies the output has decoupled from the input stream entirely, collapsing output diversity and restricting exploratory logical paths. Under our simulation parameters ($\sigma_{\text{proc}} = 0.01$), the noise-floor CPV is $O(10^{-2})$. A well-behaved architecture should therefore satisfy $O(\sigma^2_{\text{proc}}) \ll \text{CPV} \ll \text{CPV}_{\text{monolithic}}$.
 3. **Event-Triggered Activation Frequency ($\bar{f}_{\text{wake}}$):** Measures the empirical average operational frequency of the T1 cognitive tier, validating the sparsity of the active System 2 deliberation under the unified Event-Triggered Change-Detection (ETCD) gating logic:
-   $$\bar{f}_{\text{wake}} = \frac{1}{N_{\text{steps}}} \sum_{t=1}^{N_{\text{steps}}} \mathbb{I}\left( \text{EventTrigger}(t) \right) \cdot f_{\text{token}}$$
-   where $\mathbb{I}(\cdot)$ represents the indicator function, and $\text{EventTrigger}(t) = \left( \Delta_{\text{semantic}}(t) \gt \Gamma_0 \lor \text{Connector}(u(t)) \lor t - t_{\text{last\_event}} \ge \Delta_{\text{slow}}(T) \right) \land \left( t - t_{\text{last\_event}} \ge \tau_{\min} \right)$ represents the logical union of all active wake conditions. Because high-surprise semantic transitions or high-order logical connectors trigger immediate interrupts, the instantaneous operational frequency can theoretically surge up to the biophysical ceiling $f_{\max} = 1/\tau_{\min} = 25\text{ Hz}$. However, the long-term empirical average operational frequency $\bar{f}_{\text{wake}}$ is designed to settle at $\approx 2\text{ Hz}$ under representative text distributions, dramatically reducing the average computational load compared to the synchronous 50Hz baseline.
+
+   $$
+   \bar{f}_{\text{wake}} = \frac{1}{N_{\text{steps}}} \sum_{t=1}^{N_{\text{steps}}} \mathbb{I}\left( \text{EventTrigger}(t) \right) \cdot f_{\text{token}}
+   $$
+
+   where $\mathbb{I}(\cdot)$ represents the indicator function, and $\text{EventTrigger}(t) = \left( \Delta_{\text{semantic}}(t) \gt \Gamma_0 \lor \text{Connector}(u(t)) \lor t - t_{\text{last-event}} \ge \Delta_{\text{slow}}(T) \right) \land \left( t - t_{\text{last-event}} \ge \tau_{\min} \right)$ represents the logical union of all active wake conditions. Because high-surprise semantic transitions or high-order logical connectors trigger immediate interrupts, the instantaneous operational frequency can theoretically surge up to the biophysical ceiling $f_{\max} = 1/\tau_{\min} = 25\text{ Hz}$. However, the long-term empirical average operational frequency $\bar{f}_{\text{wake}}$ is designed to settle at $\approx 2\text{ Hz}$ under representative text distributions, dramatically reducing the average computational load compared to the synchronous 50Hz baseline.
 
 ### B. Quantitative Ablation: Mitigation of Sequence Instability
 We simulated an event-triggered long-context token stream containing a sudden semantic context transition (occurring at $t = 5.0\text{ s}$ over a $100\text{ ms}$ interval, corresponding to token step 250 in a 500-token sequence at 50Hz) to contrast the Singular-SSM cascade against a standard single-rate adaptive frame-skipping pipeline:
@@ -383,15 +407,29 @@ where $W$ is the parameter count of the active sub-network, and $f$ is the opera
 
 Applying this formal model to our decoupled multi-timescale cascade yields the following component-wise reproducible GFLOPS breakdown:
 * **T1 Cognitive Tier (Slow Manifold)**: Restricting the 7.0B model to the event-triggered slow clock ($W_1 = 7.0 \times 10^9$, $\bar{f}_{\text{wake}} = 2\text{ Hz}$, the nominal budget above the empirical $1.50 \pm 0.32\text{ Hz}$) yields:
-  $$\text{Compute}_{\text{T1}} = 2 \cdot (7.0 \times 10^9) \cdot 2\text{ Hz} \cdot 10^{-9} = 28.0\text{ GFLOPS/s}$$
+
+  $$
+  \text{Compute}_{\text{T1}} = 2 \cdot (7.0 \times 10^9) \cdot 2\text{ Hz} \cdot 10^{-9} = 28.0\text{ GFLOPS/s}
+  $$
+
 * **T3 Surface Core (Fast Manifold)**: Operating the lightweight 90M parameter surface core ($W_3 = 9.0 \times 10^7$) continuously at the full token rate $f_{\text{token}} = 50\text{ Hz}$:
-  $$\text{Compute}_{\text{T3}} = 2 \cdot (9.0 \times 10^7) \cdot 50\text{ Hz} \cdot 10^{-9} = 9.0\text{ GFLOPS/s}$$
+
+  $$
+  \text{Compute}_{\text{T3}} = 2 \cdot (9.0 \times 10^7) \cdot 50\text{ Hz} \cdot 10^{-9} = 9.0\text{ GFLOPS/s}
+  $$
+
 * **Gating and Modulation Overhead**: The auxiliary calculations—specifically the Event-Triggered Change-Detection (ETCD) sliding variance filtering and the double-anchor exponential parameter interpolations—consume a fixed overhead of **$0.2\text{ GFLOPS/s}$**.
 * **Unified Singular-SSM Compute Budget**: Aggregating the three components yields the total active workload:
-  $$\text{Compute}_{\text{Singular-SSM}} = 28.0 + 9.0 + 0.2 = \mathbf{37.2\text{ GFLOPS/s}}$$
+
+  $$
+  \text{Compute}_{\text{Singular-SSM}} = 28.0 + 9.0 + 0.2 = \mathbf{37.2\text{ GFLOPS/s}}
+  $$
 
 * **Consolidated Baseline Monolithic LLM**: Running a unified 5.19B parameter model ($W_b = 5.19 \times 10^9$) synchronously at the full token clock $f_{\text{token}} = 50\text{ Hz}$:
-  $$\text{Compute}_{\text{Baseline}} = 2 \cdot (5.19 \times 10^9) \cdot 50\text{ Hz} \cdot 10^{-9} = \mathbf{519.0\text{ GFLOPS/s}}$$
+
+  $$
+  \text{Compute}_{\text{Baseline}} = 2 \cdot (5.19 \times 10^9) \cdot 50\text{ Hz} \cdot 10^{-9} = \mathbf{519.0\text{ GFLOPS/s}}
+  $$
   The 5.19B allocation is selected as a compute-reference baseline to demonstrate scaling under comparable active workloads. **Crucially, this analytical calculation relies on the central unproven hypothesis of the Singular framework: that a lightweight 90M parameter surface core, modulated by a 7B cognitive core, can achieve comparable output quality and factual recall to a monolithic 5.19B model on the remaining 96% of tokens. This representation-quality equivalence remains a primary hypothesis to be validated in future trained language models, rather than a proven result.**
 
 ### B. Computational Sensitivity Analysis
