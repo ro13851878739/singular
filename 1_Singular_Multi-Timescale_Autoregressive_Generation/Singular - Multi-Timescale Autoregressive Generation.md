@@ -523,7 +523,7 @@ Furthermore, translating this $13.95\times$ computational compression into poten
 We thank the academic reviewers and members of the control theory and sequence modeling communities for their invaluable feedback on previous drafts of this work, which greatly helped refine the Input-to-State Stability bounds and the multi-timescale causality formulations.
 
 ### Code and Data Availability
-To support scientific reproducibility, the complete python simulation environment, event-triggered control sandboxes, and empirical evaluation scripts are made openly available at `https://github.com/narychen/thesis` under the `1_Singular_Multi-Timescale_Autoregressive_Generation` subdirectory. The repository includes step-by-step instructions, baseline models, configuration files, and raw archived results in JSON format.
+To support scientific reproducibility, the complete python simulation environment, event-triggered control sandboxes, and empirical evaluation scripts are made openly available at `https://github.com/ro13851878739/singular` under the `1_Singular_Multi-Timescale_Autoregressive_Generation` subdirectory. The repository includes step-by-step instructions, baseline models, configuration files, and raw archived results in JSON format.
 
 ---
 
