@@ -64,8 +64,8 @@ class ColabETCDGate:
         ]
 
     def check_trigger(self, hidden_state, token_text, step, last_wake_step):
-        # 1. Compute mean spatial descriptor
-        omega_current = hidden_state.float().mean(dim=-1).cpu().numpy()
+        # 1. Compute mean spatial descriptor (the 1D hidden state vector)
+        omega_current = hidden_state.float().cpu().numpy()
         self.window.append(omega_current.copy())
 
         if len(self.window) < self.M:
@@ -134,9 +134,9 @@ def run_demo():
     # Calculate base variance
     deltas = []
     for i in range(WINDOW_SIZE, len(hs_list)):
-        a = hs_list[i-WINDOW_SIZE].float().mean()
-        b = hs_list[i].float().mean()
-        sim = F.cosine_similarity(a.unsqueeze(0), b.unsqueeze(0), dim=0).item()
+        a = hs_list[i-WINDOW_SIZE].float()
+        b = hs_list[i].float()
+        sim = F.cosine_similarity(a, b, dim=0).item()
         deltas.append(1.0 - sim)
     
     mu_d = sum(deltas) / len(deltas)
