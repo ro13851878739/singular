@@ -1,0 +1,17 @@
+# Public Gitignore for the Pathways to Cyber-Embodied Intelligence open-source repository
+
+# Compiled Python bytes
+**/__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Operating System Metadata
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db

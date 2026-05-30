@@ -1,0 +1,16 @@
+[
+  {
+    "model": "Mamba1-2.8B",
+    "params": 2770000000,
+    "wake_hz": 1.95,
+    "wake_pct": 3.9,
+    "delta_mean": 0.206466
+  },
+  {
+    "model": "Mamba2-2.7B",
+    "params": 2720000000,
+    "wake_hz": 1.56,
+    "wake_pct": 3.1,
+    "delta_mean": 0.182402
+  }
+]

@@ -1,0 +1,54 @@
+[
+  {
+    "n_tokens": 128,
+    "wake_count": 5,
+    "wake_hz": 1.95,
+    "wake_pct": 3.9,
+    "threshold": 0.512069055514076,
+    "n_deltas": 125,
+    "delta_mean": 0.20646593,
+    "delta_std": 0.15280156,
+    "delta_max": 0.62154275,
+    "seq_len": 128,
+    "wall_seconds": 4.6
+  },
+  {
+    "n_tokens": 256,
+    "wake_count": 9,
+    "wake_hz": 1.76,
+    "wake_pct": 3.5,
+    "threshold": 0.6164020695666119,
+    "n_deltas": 253,
+    "delta_mean": 0.25826235,
+    "delta_std": 0.17906986,
+    "delta_max": 0.97370123,
+    "seq_len": 256,
+    "wall_seconds": 8.3
+  },
+  {
+    "n_tokens": 384,
+    "wake_count": 12,
+    "wake_hz": 1.56,
+    "wake_pct": 3.1,
+    "threshold": 0.7526403647282285,
+    "n_deltas": 381,
+    "delta_mean": 0.32570495,
+    "delta_std": 0.21346771,
+    "delta_max": 1.14574675,
+    "seq_len": 384,
+    "wall_seconds": 13.8
+  },
+  {
+    "n_tokens": 512,
+    "wake_count": 16,
+    "wake_hz": 1.56,
+    "wake_pct": 3.1,
+    "threshold": 0.8179689988491678,
+    "n_deltas": 509,
+    "delta_mean": 0.36326708,
+    "delta_std": 0.22735096,
+    "delta_max": 1.14574675,
+    "seq_len": 512,
+    "wall_seconds": 17.9
+  }
+]

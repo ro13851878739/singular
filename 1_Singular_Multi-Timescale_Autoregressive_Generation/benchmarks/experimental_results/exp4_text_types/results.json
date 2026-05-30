@@ -1,0 +1,86 @@
+[
+  {
+    "n_tokens": 128,
+    "wake_count": 5,
+    "wake_hz": 1.95,
+    "wake_pct": 3.9,
+    "threshold": 0.512069055514076,
+    "n_deltas": 125,
+    "delta_mean": 0.20646593,
+    "delta_std": 0.15280156,
+    "delta_max": 0.62154275,
+    "text_type": "Predictable"
+  },
+  {
+    "n_tokens": 122,
+    "wake_count": 6,
+    "wake_hz": 2.46,
+    "wake_pct": 4.9,
+    "threshold": 0.5657628519094081,
+    "n_deltas": 119,
+    "delta_mean": 0.20650911,
+    "delta_std": 0.17962687,
+    "delta_max": 0.6913271,
+    "text_type": "Transitions"
+  },
+  {
+    "n_tokens": 127,
+    "wake_count": 9,
+    "wake_hz": 3.54,
+    "wake_pct": 7.1,
+    "threshold": 0.5700547054461386,
+    "n_deltas": 124,
+    "delta_mean": 0.20525057,
+    "delta_std": 0.18240207,
+    "delta_max": 0.65776098,
+    "text_type": "Mixed"
+  },
+  {
+    "n_tokens": 128,
+    "wake_count": 3,
+    "wake_hz": 1.17,
+    "wake_pct": 2.3,
+    "threshold": 0.41251036114240736,
+    "n_deltas": 125,
+    "delta_mean": 0.19004741,
+    "delta_std": 0.11123147,
+    "delta_max": 0.49381876,
+    "text_type": "Code"
+  },
+  {
+    "n_tokens": 128,
+    "wake_count": 4,
+    "wake_hz": 1.56,
+    "wake_pct": 3.1,
+    "threshold": 0.3779932604732842,
+    "n_deltas": 125,
+    "delta_mean": 0.13370178,
+    "delta_std": 0.12214574,
+    "delta_max": 0.69533688,
+    "text_type": "Math"
+  },
+  {
+    "n_tokens": 128,
+    "wake_count": 9,
+    "wake_hz": 3.52,
+    "wake_pct": 7.0,
+    "threshold": 0.31641896940168074,
+    "n_deltas": 125,
+    "delta_mean": 0.11569863,
+    "delta_std": 0.10036017,
+    "delta_max": 0.52828288,
+    "text_type": "Dialog"
+  },
+  {
+    "n_tokens": 128,
+    "wake_count": 8,
+    "wake_hz": 3.12,
+    "wake_pct": 6.2,
+    "threshold": 0.6271058592205697,
+    "n_deltas": 125,
+    "delta_mean": 0.21108164,
+    "delta_std": 0.20801211,
+    "delta_max": 0.73813212,
+    "text_type": "Wikipedia"
+  }
+]
