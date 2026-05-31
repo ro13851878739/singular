@@ -58,7 +58,7 @@ To bridge the gap between abstract control theory and physical sequence processi
 
 **Direct Replication & Verification Guide**
 To support complete open-science transparency, readers can personally verify these exact physical speedup and energy-saving metrics in under a minute:
-* **One-Click Google Colab Live Demo (30 Seconds)**: Click the live badge on our repository (`https://github.com/ro13851878739/singular`) to execute `singular_colab_demo.py`. It streams autoregressive text, color-coding the System 1 and System 2 state activations in real time in your browser.
+* **One-Click Google Colab Live Demo (30 Seconds)**: Click the live badge on our repository (`https://anonymous.4open.science/r/singular-6788/`) to execute `singular_colab_demo.py`. It streams autoregressive text, color-coding the System 1 and System 2 state activations in real time in your browser.
 * **Physical GPU Latency & Energy Replication (1 Minute)**: For readers with an NVIDIA GPU and NVML installed, navigate to the `benchmarks/` directory and execute:
   ```bash
   python run_real_speed_benchmark.py
@@ -560,7 +560,7 @@ Furthermore, translating this $13.95\times$ computational compression into poten
 We thank the academic reviewers and members of the control theory and sequence modeling communities for their invaluable feedback on previous drafts of this work, which greatly helped refine the Input-to-State Stability bounds and the multi-timescale causality formulations.
 
 ### Code and Data Availability
-To support scientific reproducibility, the complete python simulation environment, event-triggered control sandboxes, and empirical evaluation scripts are made openly available at `https://github.com/ro13851878739/singular` under the `1_Singular_Multi-Timescale_Autoregressive_Generation` subdirectory. The repository includes step-by-step instructions, baseline models, configuration files, and raw archived results in JSON format.
+To support scientific reproducibility, the complete python simulation environment, event-triggered control sandboxes, and empirical evaluation scripts are made openly available at `https://anonymous.4open.science/r/singular-6788/` under the `1_Singular_Multi-Timescale_Autoregressive_Generation` subdirectory. The repository includes step-by-step instructions, baseline models, configuration files, and raw archived results in JSON format.
 
 ---
 
