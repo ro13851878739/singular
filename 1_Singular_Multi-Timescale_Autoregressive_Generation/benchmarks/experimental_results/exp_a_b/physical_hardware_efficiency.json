@@ -5,8 +5,8 @@
       "mode": "monolithic",
       "threshold": null,
       "ppl": 16.967836315227594,
-      "latency_ms": 20.304908178570173,
-      "energy_mj": 2076.5777681577324,
+      "latency_ms": 19.992138845238863,
+      "energy_mj": 2025.9795622884992,
       "wake_percentage": 100.0
     },
     {
@@ -14,8 +14,8 @@
       "mode": "bare",
       "threshold": null,
       "ppl": 1826.4290627195464,
-      "latency_ms": 1.7336337381103866,
-      "energy_mj": 169.36986625895295,
+      "latency_ms": 1.7838880238135364,
+      "energy_mj": 175.0045227379424,
       "wake_percentage": 0.0
     },
     {
@@ -23,8 +23,8 @@
       "mode": "oracle",
       "threshold": null,
       "ppl": 1631.2585693989845,
-      "latency_ms": 22.64214176191325,
-      "energy_mj": 2323.5059878323227,
+      "latency_ms": 22.340356130934243,
+      "energy_mj": 2280.2759695512627,
       "wake_percentage": 100.0
     },
     {
@@ -32,8 +32,8 @@
       "mode": "gated",
       "threshold": 0.005,
       "ppl": 1859.663869974499,
-      "latency_ms": 10.503150619028712,
-      "energy_mj": 1054.1669067897897,
+      "latency_ms": 10.386932761905753,
+      "energy_mj": 1042.5651406311406,
       "wake_percentage": 42.857142857142854
     },
     {
@@ -41,8 +41,8 @@
       "mode": "gated",
       "threshold": 0.01,
       "ppl": 1859.663869974499,
-      "latency_ms": 10.24856039285147,
-      "energy_mj": 1054.185390988167,
+      "latency_ms": 10.07883005953166,
+      "energy_mj": 1022.086716642534,
       "wake_percentage": 42.857142857142854
     },
     {
@@ -50,8 +50,8 @@
       "mode": "gated",
       "threshold": 0.02,
       "ppl": 1859.663869974499,
-      "latency_ms": 9.990399964300153,
-      "energy_mj": 1047.476103680721,
+      "latency_ms": 9.918001261883632,
+      "energy_mj": 1029.9021555277918,
       "wake_percentage": 42.857142857142854
     },
     {
@@ -59,8 +59,8 @@
       "mode": "gated",
       "threshold": 0.05,
       "ppl": 1859.663869974499,
-      "latency_ms": 9.267572476195104,
-      "energy_mj": 962.5712643991798,
+      "latency_ms": 9.158132785722998,
+      "energy_mj": 938.8834451802547,
       "wake_percentage": 42.857142857142854
     },
     {
@@ -68,8 +68,8 @@
       "mode": "gated",
       "threshold": 0.1,
       "ppl": 1859.663869974499,
-      "latency_ms": 7.060635964275467,
-      "energy_mj": 734.0504999708741,
+      "latency_ms": 6.986523666672015,
+      "energy_mj": 714.6532002875127,
       "wake_percentage": 42.857142857142854
     },
     {
@@ -77,8 +77,8 @@
       "mode": "gated",
       "threshold": 0.2,
       "ppl": 1859.663869974499,
-      "latency_ms": 5.123708095219453,
-      "energy_mj": 531.4208870201136,
+      "latency_ms": 5.035796642849683,
+      "energy_mj": 523.7885997904585,
       "wake_percentage": 42.857142857142854
     },
     {
@@ -86,8 +86,8 @@
       "mode": "gated",
       "threshold": 0.3,
       "ppl": 1727.5766514854047,
-      "latency_ms": 5.123708785720824,
-      "energy_mj": 533.1910149189137,
+      "latency_ms": 4.992364892846775,
+      "energy_mj": 525.5008850393424,
       "wake_percentage": 40.476190476190474
     },
     {
@@ -95,8 +95,8 @@
       "mode": "gated",
       "threshold": 0.4,
       "ppl": 1674.7081716274872,
-      "latency_ms": 4.622744761902487,
-      "energy_mj": 490.0926362635939,
+      "latency_ms": 4.506468845236322,
+      "energy_mj": 483.04215316249565,
       "wake_percentage": 28.57142857142857
     }
   ],
@@ -105,10 +105,10 @@
     "mode": "gated",
     "threshold": 0.4,
     "ppl": 1674.7081716274872,
-    "latency_ms": 4.622744761902487,
-    "energy_mj": 490.0926362635939,
+    "latency_ms": 4.506468845236322,
+    "energy_mj": 483.04215316249565,
     "wake_percentage": 28.57142857142857
   },
-  "speedup_factor": 4.3923922311068075,
-  "energy_savings_percentage": 76.39902324975833
+  "speedup_factor": 4.43632021696368,
+  "energy_savings_percentage": 76.1575999011134
 }
