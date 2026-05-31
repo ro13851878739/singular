@@ -1,6 +1,6 @@
 # Singular: Multi-Timescale Autoregressive Generation
 
-[![Colab Demo](https://img.shields.io/badge/Run%20in%20Colab-Live%20Demo-brightgreen?logo=googlecolab&logoColor=white)](https://colab.research.google.com/github/ro13851878739/singular/blob/main/1_Singular_Multi-Timescale_Autoregressive_Generation/singular_colab_demo.py)
+[![Colab Demo](https://img.shields.io/badge/Run%20in%20Colab-Live%20Demo-brightgreen?logo=googlecolab&logoColor=white)](https://colab.research.google.com/github/ro13851878739/singular/blob/main/1_Singular_Multi-Timescale_Autoregressive_Generation/singular_colab_demo.ipynb)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
 > **"Not every token needs the full power."**
@@ -37,9 +37,9 @@ All materials for reproducing our findings are organized as follows:
 
 ### Step 1: Run Live Google Colab Demo (30 Seconds)
 You can run the interactive prototype of our event-triggered Singular-SSM directly in your browser with zero installation:
-1. Click our **[Run in Colab](https://colab.research.google.com/github/ro13851878739/singular/blob/main/1_Singular_Multi-Timescale_Autoregressive_Generation/singular_colab_demo.py)** badge at the top of this page to open the notebook instantly in Google Colab.
+1. Click our **[Run in Colab](https://colab.research.google.com/github/ro13851878739/singular/blob/main/1_Singular_Multi-Timescale_Autoregressive_Generation/singular_colab_demo.ipynb)** badge at the top of this page to open the notebook instantly in Google Colab.
 2. Sign in with your Google account and click the **Play/Run** button on the cell.
-3. The script will dynamically download `mamba-130m-hf` (fully self-contained, auto-detecting GPU/MPS/CPU), execute text generation, and stream output where:
+3. The notebook will dynamically download `mamba-130m-hf` (fully self-contained, auto-detecting GPU/MPS/CPU), execute text generation, and stream output where:
    * **Green tokens** represent routine generation processed by the lightweight T3 Surface Core (System 1, 50 Hz).
    * **Red underlined tokens** represent cognitive boundaries where the ETCD gate triggered a hardware interrupt to wake the T1 Cognitive Core (System 2, 2 Hz) for semantic re-anchoring.
 
