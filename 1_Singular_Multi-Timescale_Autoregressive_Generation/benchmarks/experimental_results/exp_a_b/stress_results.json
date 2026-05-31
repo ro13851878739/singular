@@ -1,0 +1,26 @@
+{
+  "Level 0 (Predictable)": {
+    "ppl": 2963.5382686949706,
+    "wake_count": 13,
+    "seq_len": 46,
+    "wake_pct": 28.26086956521739,
+    "wake_hz": 14.130434782608695,
+    "gflops_compression": 1.9395537328754264
+  },
+  "Level 1 (Discourse transitions)": {
+    "ppl": 9631.454903180564,
+    "wake_count": 14,
+    "seq_len": 44,
+    "wake_pct": 31.818181818181817,
+    "wake_hz": 15.909090909090908,
+    "gflops_compression": 1.8143695247309006
+  },
+  "Level 2 (Adversarial domain-chattering)": {
+    "ppl": 19104.758488054456,
+    "wake_count": 21,
+    "seq_len": 70,
+    "wake_pct": 30.0,
+    "wake_hz": 15.0,
+    "gflops_compression": 1.8762647536274155
+  }
+}
