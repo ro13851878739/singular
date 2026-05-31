@@ -93,9 +93,9 @@ def make_film_hook(layer_idx, film_module):
 # ──────────────────────────────────────────────────────────────────
 # Data Processing (WikiText-2)
 # ──────────────────────────────────────────────────────────────────
-def prepare_data(tokenizer):
-    print("[Data] Loading WikiText-2 dataset...")
-    ds = load_dataset("salesforce/wikitext", "wikitext-2-raw-v1")
+def prepare_data(tokenizer, dataset_name="wikitext-2-raw-v1"):
+    print(f"[Data] Loading {dataset_name} dataset...")
+    ds = load_dataset("salesforce/wikitext", dataset_name)
     
     def tokenize_fn(examples):
         return tokenizer(examples["text"], truncation=False)
@@ -194,10 +194,13 @@ def compute_interpolated_phi(H_T1, threshold):
 # Main Experimentation Loop
 # ──────────────────────────────────────────────────────────────────
 def main():
-    global DEVICE, DTYPE, BATCH_SIZE, LR, TRAIN_STEPS, EVAL_STEPS, RESULTS_DIR, INJECTION_LAYER
+    global MODEL_NAME, DEVICE, DTYPE, BATCH_SIZE, LR, TRAIN_STEPS, EVAL_STEPS, RESULTS_DIR, INJECTION_LAYER
     
     import argparse
     parser = argparse.ArgumentParser(description="Singular Dual-Rate Mamba Experiment")
+    parser.add_argument("--model", type=str, default=MODEL_NAME, help="HF Mamba model name (e.g. state-spaces/mamba-370m-hf, state-spaces/mamba-1.4b-hf)")
+    parser.add_argument("--t3_layers", type=int, default=4, help="Number of layers in Surface Core T3")
+    parser.add_argument("--dataset", type=str, default="wikitext-2-raw-v1", help="Dataset subset (e.g. wikitext-2-raw-v1, wikitext-103-raw-v1)")
     parser.add_argument("--steps", type=int, default=TRAIN_STEPS, help="Number of training steps")
     parser.add_argument("--eval_steps", type=int, default=EVAL_STEPS, help="Number of evaluation steps")
     parser.add_argument("--layer", type=int, default=INJECTION_LAYER, help="T1 hidden layer to inject (0-48)")
@@ -207,6 +210,7 @@ def main():
     args = parser.parse_args()
     
     # Apply arguments
+    MODEL_NAME = args.model
     TRAIN_STEPS = args.steps
     EVAL_STEPS = args.eval_steps
     INJECTION_LAYER = args.layer
@@ -219,12 +223,6 @@ def main():
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(args.seed)
         
-    print("=" * 68)
-    print("  EXPERIMENT A: DUAL-RATE MAMBA ON WIKITEXT-2")
-    print(f"  Device: {DEVICE}  |  Precision: {DTYPE}  |  Injection Layer: {INJECTION_LAYER}")
-    print(f"  Steps: {TRAIN_STEPS}  |  LR: {LR}  |  Batch Size: {BATCH_SIZE}  |  Seed: {args.seed}")
-    print("=" * 68)
-    
     # 1. Load Tokenizer & Config
     print("\n[1/7] Loading tokenizer and model configuration...")
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, trust_remote_code=True)
@@ -234,8 +232,19 @@ def main():
     t1_config = AutoConfig.from_pretrained(MODEL_NAME, trust_remote_code=True)
     d_model = t1_config.hidden_size
     
-    # 2. Load & Prepare WikiText-2 Data
-    train_data, val_data = prepare_data(tokenizer)
+    # Dynamically select middle layer if model size has changed and layer is default 24
+    if args.layer == 24 and t1_config.num_hidden_layers != 48:
+        INJECTION_LAYER = t1_config.num_hidden_layers // 2
+        
+    print("=" * 68)
+    print(f"  EXPERIMENT A: DUAL-RATE MAMBA ON {args.dataset.upper()}")
+    print(f"  Model Scale: {MODEL_NAME} ({t1_config.num_hidden_layers} layers, {d_model} dims)")
+    print(f"  Device: {DEVICE}  |  Precision: {DTYPE}  |  Injection Layer: {INJECTION_LAYER}")
+    print(f"  T3 Layers: {args.t3_layers}  |  Steps: {TRAIN_STEPS}  |  LR: {LR}  |  Seed: {args.seed}")
+    print("=" * 68)
+    
+    # 2. Load & Prepare Data
+    train_data, val_data = prepare_data(tokenizer, dataset_name=args.dataset)
     print(f"  Train samples: {len(train_data)}  |  Val samples: {len(val_data)}")
     
     # Create simple data loaders
@@ -267,9 +276,9 @@ def main():
     print("  T1 loaded successfully and frozen.")
     
     # 4. Instantiate custom Surface Core (T3)
-    print("\n[4/7] Instantiating custom randomly initialized Surface Core (T3 4-layer Mamba)...")
+    print(f"\n[4/7] Instantiating custom randomly initialized Surface Core (T3 {args.t3_layers}-layer Mamba)...")
     t3_config = AutoConfig.from_pretrained(MODEL_NAME, trust_remote_code=True)
-    t3_config.num_hidden_layers = 4  # prune to 4 layers for fast surface processing
+    t3_config.num_hidden_layers = args.t3_layers  # prune to configurable layers for fast surface processing
     t3_model = AutoModelForCausalLM.from_config(t3_config).to(DEVICE)
     print(f"  T3 instantiated: {t3_config.num_hidden_layers} layers, {d_model} hidden size.")
     
