@@ -77,13 +77,13 @@ def calibrate_threshold(model, tokenizer, text, device, n_steps=80):
         for i in range(ids.shape[1]):
             out = model(ids[:, i:i+1], output_hidden_states=True, return_dict=True)
             if out.hidden_states:
-                hs_list.append(out.hidden_states[-1].float().mean(dim=-1).mean().cpu().item())
+                hs_list.append(out.hidden_states[-1][0, 0].float().cpu())
     if len(hs_list) < WINDOW_SIZE + 2:
         return 0.05
     deltas = []
     for i in range(WINDOW_SIZE, len(hs_list)):
-        a = torch.tensor(hs_list[i-WINDOW_SIZE:i])
-        b = torch.tensor(hs_list[i-WINDOW_SIZE+1:i+1])
+        a = hs_list[i-WINDOW_SIZE]
+        b = hs_list[i]
         sim = F.cosine_similarity(a, b, dim=0).item()
         deltas.append(1.0 - sim)
     mu_d = sum(deltas) / len(deltas)
@@ -115,17 +115,17 @@ def measure_etcd(model, ids, threshold):
             out = model(ids[:, step:step+1], output_hidden_states=True, return_dict=True)
 
             if out.hidden_states:
-                hs = out.hidden_states[-1].float().mean(dim=-1).mean().item()
+                hs = out.hidden_states[-1][0, 0].float().cpu()
             else:
-                hs = 0.0
+                hs = torch.zeros(model.config.hidden_size)
 
             window.append(hs)
             if len(window) > WINDOW_SIZE:
                 window.pop(0)
 
             if len(window) == WINDOW_SIZE and step >= WINDOW_SIZE:
-                a = torch.tensor(window)
-                b = torch.tensor([window[-1]] * WINDOW_SIZE)
+                a = window[0]
+                b = window[-1]
                 sim = F.cosine_similarity(a, b, dim=0).item()
                 delta = 1.0 - sim
                 if delta > threshold and t_sec - t_last >= DT_COG:
