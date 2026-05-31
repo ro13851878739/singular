@@ -37,12 +37,12 @@ INJECTION_LAYER = 24
 
 # Realistic validation paragraph from WikiText-2 test set (containing natural surprise transitions)
 EVAL_TEXT = (
-    "Homomeric organic compounds are structurally characterized by a single repeat unit. "
-    "However, their physical synthesis under laboratory conditions remains challenging. "
-    "Therefore, recent developments in automation have focused on programmatic assembly. "
-    "In this paper, we formalize a continuous-flow chemical reactor controlled by state-space models. "
-    "The experimental characterization demonstrates stable tracking under rapid temperature fluctuations. "
-    "This provides a rigorous substrate for future investigations."
+    "The game was played between two teams of eleven players on a rectangular field. "
+    "However, the second half saw a dramatic shift in momentum as the visitors scored twice. "
+    "Therefore, the home team was forced to adopt a highly aggressive attacking formation. "
+    "In this period, the goalkeeper made several outstanding saves to protect the slim lead. "
+    "The final whistle blew after ninety minutes of intense physical competition. "
+    "This victory secured their position at the top of the league standings."
 )
 
 # ──────────────────────────────────────────────────────────────────
@@ -151,25 +151,143 @@ class GPUEnergyMonitor:
 # ──────────────────────────────────────────────────────────────────
 # Unified Quality & Performance Profiler Loop
 # ──────────────────────────────────────────────────────────────────
+def compute_interpolated_phi(H_T1, threshold):
+    """Compute gated interpolated modulation field Phi."""
+    b_sz, seq_len, d_model = H_T1.shape
+    Phi = torch.zeros_like(H_T1)
+    wake_mask = torch.zeros(b_sz, seq_len, dtype=torch.bool, device=H_T1.device)
+    
+    for i in range(b_sz):
+        h_seq = H_T1[i]
+        # Calculate sliding window cosine similarity deltas
+        deltas = torch.zeros(seq_len, device=H_T1.device)
+        for t in range(WINDOW_SIZE, seq_len):
+            a = h_seq[t]
+            b_vec = h_seq[t - WINDOW_SIZE]
+            sim = F.cosine_similarity(a, b_vec, dim=0)
+            deltas[t] = 1.0 - sim
+            
+        t_last = 0
+        wakes = [0]
+        wake_mask[i, 0] = True
+        
+        for t in range(WINDOW_SIZE, seq_len):
+            t_sec = t / F_TOKEN
+            t_last_sec = t_last / F_TOKEN
+            if deltas[t] > threshold and (t_sec - t_last_sec >= DT_COG):
+                wakes.append(t)
+                wake_mask[i, t] = True
+                t_last = t
+                
+        # End anchor
+        if wakes[-1] != seq_len - 1:
+            wakes.append(seq_len - 1)
+            wake_mask[i, seq_len - 1] = True
+            
+        # Interpolate/decay causally (no future leak)
+        for j in range(len(wakes) - 1):
+            t_start = wakes[j]
+            t_end = wakes[j+1]
+            anchor_start = h_seq[t_start]
+            
+            for t in range(t_start, t_end + 1):
+                dt = (t - t_start) / F_TOKEN
+                alpha = math.exp(-2.0 * dt)
+                # Purely causal: decays the current anchor over time
+                Phi[i, t] = anchor_start * alpha
+                
+    return Phi, wake_mask
+
+
+# ──────────────────────────────────────────────────────────────────
+# Unified Quality & Performance Profiler Loop
+# ──────────────────────────────────────────────────────────────────
 def profile_configuration(t1_model, t3_model, film_module, input_ids, mode, threshold=None, monitor=None):
     global CURRENT_PHI
     
     t1_model.eval()
     t3_model.eval()
     
-    # Register Hooks if modulating
-    hooks = []
-    if mode in ["gated", "oracle"]:
-        for l in range(t3_model.config.num_hidden_layers):
-            h_hook = t3_model.backbone.layers[l].register_forward_hook(make_film_hook(l, film_module))
-            hooks.append(h_hook)
-            
     seq_len = input_ids.shape[1]
-    
-    # Initialize T1 & T3 states by passing prompt prefix (warmup)
     prefix_len = 6
-    prefix = input_ids[:, :prefix_len]
+    num_eval_tokens = seq_len - prefix_len
     
+    # ──────────────────────────────────────────────────────────────────
+    # Part 1: Quality Evaluation (PPL and Wakes) via Parallel Forward
+    # ──────────────────────────────────────────────────────────────────
+    wake_count = 0
+    
+    if mode == "monolithic":
+        with torch.no_grad():
+            out = t1_model(input_ids)
+            logits = out.logits
+            shift_logits = logits[:, prefix_len-1:-1, :].contiguous()
+            shift_labels = input_ids[:, prefix_len:].contiguous()
+            loss_fn = nn.CrossEntropyLoss()
+            loss = loss_fn(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+            ppl = math.exp(loss.item())
+            
+    elif mode == "bare":
+        with torch.no_grad():
+            out = t3_model(input_ids)
+            logits = out.logits
+            shift_logits = logits[:, prefix_len-1:-1, :].contiguous()
+            shift_labels = input_ids[:, prefix_len:].contiguous()
+            loss_fn = nn.CrossEntropyLoss()
+            loss = loss_fn(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+            ppl = math.exp(loss.item())
+            
+    elif mode == "oracle":
+        hooks = []
+        for l in range(t3_model.config.num_hidden_layers):
+            hooks.append(t3_model.backbone.layers[l].register_forward_hook(make_film_hook(l, film_module)))
+            
+        with torch.no_grad():
+            t1_out = t1_model(input_ids, output_hidden_states=True)
+            CURRENT_PHI = t1_out.hidden_states[INJECTION_LAYER].float()
+            
+            t3_out = t3_model(input_ids)
+            logits = t3_out.logits
+            shift_logits = logits[:, prefix_len-1:-1, :].contiguous()
+            shift_labels = input_ids[:, prefix_len:].contiguous()
+            loss_fn = nn.CrossEntropyLoss()
+            loss = loss_fn(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+            ppl = math.exp(loss.item())
+            
+        for hook in hooks:
+            hook.remove()
+            
+    elif mode == "gated":
+        hooks = []
+        for l in range(t3_model.config.num_hidden_layers):
+            hooks.append(t3_model.backbone.layers[l].register_forward_hook(make_film_hook(l, film_module)))
+            
+        with torch.no_grad():
+            t1_out = t1_model(input_ids, output_hidden_states=True)
+            h_t1 = t1_out.hidden_states[INJECTION_LAYER].float()
+            
+            Phi, w_mask = compute_interpolated_phi(h_t1, threshold)
+            CURRENT_PHI = Phi
+            
+            t3_out = t3_model(input_ids)
+            logits = t3_out.logits
+            shift_logits = logits[:, prefix_len-1:-1, :].contiguous()
+            shift_labels = input_ids[:, prefix_len:].contiguous()
+            loss_fn = nn.CrossEntropyLoss()
+            loss = loss_fn(shift_logits.view(-1, shift_logits.size(-1)), shift_labels.view(-1))
+            ppl = math.exp(loss.item())
+            
+            # Wakes are counted only on the evaluation segment
+            wake_count = w_mask[:, prefix_len:].sum().item()
+            
+        for hook in hooks:
+            hook.remove()
+            
+    # ──────────────────────────────────────────────────────────────────
+    # Part 2: Latency & Energy Profiling via step-by-step decoding
+    # ──────────────────────────────────────────────────────────────────
+    # Warmup decoding prefix
+    prefix = input_ids[:, :prefix_len]
     with torch.no_grad():
         t1_out = t1_model(prefix, output_hidden_states=True, return_dict=True)
         h_t1_init = t1_out.hidden_states[INJECTION_LAYER][:, -1:, :]
@@ -180,9 +298,6 @@ def profile_configuration(t1_model, t3_model, film_module, input_ids, mode, thre
     t3_window = [h_t3_seq[0, i].float() for i in range(max(0, prefix_len - WINDOW_SIZE), prefix_len)]
     anchor_start = h_t1_init[0, 0].float()
     t_last = prefix_len - 1
-    wake_count = 0
-    total_loss = 0.0
-    loss_fn = nn.CrossEntropyLoss()
     
     # Active monitoring start
     if monitor:
@@ -192,31 +307,26 @@ def profile_configuration(t1_model, t3_model, film_module, input_ids, mode, thre
         torch.cuda.synchronize()
     t_start = time.perf_counter()
     
-    # Step-by-step next-token prediction and latency profiling
+    # Register Hooks for timing loop
+    hooks = []
+    if mode in ["gated", "oracle"]:
+        for l in range(t3_model.config.num_hidden_layers):
+            hooks.append(t3_model.backbone.layers[l].register_forward_hook(make_film_hook(l, film_module)))
+            
     for step in range(prefix_len - 1, seq_len - 1):
         curr_token_ids = input_ids[:, step:step+1]
-        next_token_id = input_ids[:, step+1]
-        
-        current_step_idx = step
-        t_sec = current_step_idx / F_TOKEN
+        t_sec = step / F_TOKEN
         t_last_sec = t_last / F_TOKEN
         
-        # 1. Run Core Step
         with torch.no_grad():
             if mode == "monolithic":
-                # Monolithic runs full heavy T1 at every step
-                t1_out = t1_model(curr_token_ids, return_dict=True)
-                logits = t1_out.logits[:, -1, :]
+                # Monolithic runs full T1
+                _ = t1_model(curr_token_ids, return_dict=True)
             else:
-                # Gated, Bare, or Oracle run lightweight T3 at every step
+                # Gated, Bare, or Oracle run lightweight T3
                 t3_out = t3_model(curr_token_ids, output_hidden_states=True, return_dict=True)
-                logits = t3_out.logits[:, -1, :]
                 h_t3_curr = t3_out.hidden_states[-1][0, 0].float()
                 
-        # Register loss for PPL
-        loss = loss_fn(logits, next_token_id)
-        total_loss += loss.item()
-        
         if mode in ["monolithic", "bare"]:
             continue
             
@@ -224,7 +334,6 @@ def profile_configuration(t1_model, t3_model, film_module, input_ids, mode, thre
         if len(t3_window) > WINDOW_SIZE:
             t3_window.pop(0)
             
-        # 2. Gate Surprise Gating
         should_wake = False
         if mode == "oracle":
             should_wake = True
@@ -234,17 +343,14 @@ def profile_configuration(t1_model, t3_model, film_module, input_ids, mode, thre
             if delta_semantic > threshold and (t_sec - t_last_sec >= DT_COG):
                 should_wake = True
                 
-        # 3. T1 Physical Execution / Bypassing
         if should_wake:
-            wake_count += 1
-            t_last = current_step_idx
+            t_last = step
             with torch.no_grad():
                 t1_out = t1_model(curr_token_ids, output_hidden_states=True, return_dict=True)
                 anchor_start = t1_out.hidden_states[INJECTION_LAYER][0, 0].float()
             CURRENT_PHI = anchor_start
         else:
-            # Physical Bypass: T1 is NOT executed! slow prior decays exponentially.
-            dt = (current_step_idx - t_last) / F_TOKEN
+            dt = (step - t_last) / F_TOKEN
             alpha = math.exp(-2.0 * dt)
             CURRENT_PHI = anchor_start * alpha
             
@@ -252,17 +358,13 @@ def profile_configuration(t1_model, t3_model, film_module, input_ids, mode, thre
         torch.cuda.synchronize()
     t_duration = time.perf_counter() - t_start
     
-    # Active monitoring stop
     joules = 0.0
     if monitor:
         joules = monitor.stop()
         
-    # Deregister Hooks
     for hook in hooks:
         hook.remove()
         
-    num_eval_tokens = seq_len - prefix_len
-    ppl = math.exp(total_loss / num_eval_tokens)
     latency_ms_token = (t_duration / num_eval_tokens) * 1000.0
     energy_mj_token = (joules / num_eval_tokens) * 1000.0 if monitor and monitor.supported else 0.0
     
