@@ -1,6 +1,6 @@
 # Reproducibility & Code Architecture Guide (CODE_GUIDE.md)
 
-> **"Not every token needs the full model."**
+> **"Not every token needs the full power."**
 > This guide is designed to help peer reviewers, Action Editors, and open-source ML researchers navigate our codebase and establish a direct mapping between our source code and the theoretical/empirical assertions in the paper.
 
 ---

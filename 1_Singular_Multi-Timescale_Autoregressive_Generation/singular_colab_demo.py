@@ -16,7 +16,7 @@ Key Verification:
      - GREEN: "System 1" handles routine, predictable token generation.
   4. Computes empirical wake frequency and top-k token overlap.
 
-"Not every token needs the full model."
+"Not every token needs the full power."
 ================================================================================
 """
 
@@ -219,7 +219,7 @@ def run_demo():
     # Highlight the core value
     print(f"    - {BOLD}The core empirical breakthrough verified here is that a tiny 1.5Hz wake frequency")
     print(f"      retains a 99.4% top-5 token overlap against a monolithic 50Hz dense baseline.{RESET}")
-    print(f"\n{BOLD}    \"Not every token needs the full model.\"{RESET}")
+    print(f"\n{BOLD}    \"Not every token needs the full power.\"{RESET}")
     print("="*80)
 
 if __name__ == "__main__":
