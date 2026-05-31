@@ -290,6 +290,18 @@ def main():
         model_t3 = AutoModelForCausalLM.from_config(t3_config).to(DEVICE)
         film = MambaFiLMModule(d_model, t3_config.num_hidden_layers).to(DEVICE)
         
+        # Automatically resume from periodic checkpoint if it exists
+        if "Gated" in experiment_type:
+            checkpoint_t3 = f"{RESULTS_DIR}/t3_gated_checkpoint.pt"
+            checkpoint_film = f"{RESULTS_DIR}/film_gated_checkpoint.pt"
+            if os.path.exists(checkpoint_t3) and os.path.exists(checkpoint_film):
+                print(f"  [Resume] Found step-level backup checkpoint! Resuming training...")
+                try:
+                    model_t3.load_state_dict(torch.load(checkpoint_t3, map_location=DEVICE))
+                    film.load_state_dict(torch.load(checkpoint_film, map_location=DEVICE))
+                except Exception as e:
+                    print(f"  [Resume] Warning: Could not load checkpoint ({e}). Training from scratch.")
+        
         if experiment_type == "Bare T3 (no conditioning)":
             optimizer = torch.optim.AdamW(model_t3.parameters(), lr=LR)
             film.eval()  # Keep film deactivated
@@ -335,6 +347,14 @@ def main():
             optimizer.step()
             
             losses.append(loss.item())
+            
+            # Save periodic checkpoints to protect against cloud preemption
+            if step % 1000 == 0 and step > 0:
+                if "Gated" in experiment_type:
+                    torch.save(model_t3.state_dict(), f"{RESULTS_DIR}/t3_gated_checkpoint.pt")
+                    torch.save(film.state_dict(), f"{RESULTS_DIR}/film_gated_checkpoint.pt")
+                    print(f"  [Checkpoint] Periodic step-level backup saved at step {step}.")
+                    
             if step % 50 == 0:
                 print(f"  Step {step:3d}/{TRAIN_STEPS}  |  Loss: {loss.item():.4f}")
                 
