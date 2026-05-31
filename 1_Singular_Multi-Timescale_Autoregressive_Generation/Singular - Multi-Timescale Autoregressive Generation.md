@@ -46,6 +46,16 @@ Conceptually, the contribution of this work can be understood as a three-layer a
 
 3. **Concrete Instantiations & Empirical Characterization.** The three pillars translate into a specific prototype (T1 = large Mamba backbone, T3 = lightweight surface core, coupled via FiLM hooks and ETCD gating). We systematically characterize this architecture by training a dual-rate Mamba-370M/30M setup to convergence on natural language (WikiText-2 next-token prediction). While the monolithic 370M baseline represents the ceiling (PPL = 31.20) and a standalone surface core severely under-trains (Bare T3 PPL = 1086.25), continuous cognitive projection (Oracle) reduces perplexity to 211.06, demonstrating active contextual coupling. Under causal event-triggered gating (Gated Dual-Rate), the model operates at a stable 1.44 Hz wake frequency, realizing a perplexity of 821.53 and achieving a 3.82× GFLOPS analytical compute compression, alongside a 7.08× physical wall-clock speedup and 88.4% GPU energy savings physically measured on real hardware. Under adversarial domain-chattering stress testing, the gate maintains a bounded wake ceiling at 15.0 Hz with stable dynamic gating tracking, though next-token prediction perplexity degrades under extreme out-of-distribution shifts. The theoretical 13.95× GFLOPS compression emerges as a direct scale corollary of the multi-timescale abstraction at 7B scale.
 
+### Key Empirical Performance Breakthroughs (At-a-Glance)
+To bridge the gap between abstract control theory and physical sequence processing, we summarize the main empirical results of the Singular-SSM prototype evaluated on an NVIDIA L20 GPU (detailed in Section VI.E). Reviewers and readers are invited to examine these physical landmarks first, establishing the empirical viability of the multi-timescale cascade before diving into the formal singular perturbation and Input-to-State stability proofs in Chapters II–V.
+
+| Configuration | Active Wake Rate ($f_{\text{wake}}$) | WikiText-2 PPL | Analytical FLOPs Compression | Physical Wall-Clock Speedup | Physical GPU Energy Savings (mJ/token) | Mapped Section |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **Monolithic Baseline (Mamba-370M)** | 100.0% (50.0 Hz) | 31.20 | 1.0× (Dense baseline) | 1.00× (20.17 ms/token) | Baseline (1948.3 mJ) | Sec. VI.E |
+| **Bare T3 Surface Core (~30M)** | 0.0% (0.00 Hz) | 1086.25 | 24.3× (Deconditioned) | — (Under-trained) | — (Under-trained) | Sec. VI.E |
+| **Oracle Dual-Rate (Projection)** | 100.0% (50.0 Hz) | 211.06 | 1.0× (Continuous core) | — (Continuous core) | — (Continuous core) | Sec. VI.E |
+| **Gated Dual-Rate (Singular-SSM)** | **2.9% (1.44 Hz)** | **821.53** | **3.82× (GFLOPS model)** | **7.08× (2.85 ms/token)** | **88.4% savings (225.7 mJ)** | Sec. VI.E |
+
 Figure 0 provides a visual summary of this three-layer conceptual architecture.
 
 <figure id="fig0">
