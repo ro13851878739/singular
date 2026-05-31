@@ -15,9 +15,22 @@ To explore the codebase from simple prototypes to dense scale-up benchmarks, we 
 2. **Step 2: Run Mathematical & Control-Theoretic Simulations (3 Minutes)**
    * Navigate to the `simulation/` directory and run `tikhanov_simulation.py` and `iss_stability_test.py`.
    * These scripts evaluate slow-manifold convergence and input-to-state stability trajectories, reproducing the exact control-theoretic plots featured in the paper.
-3. **Step 3: Run Full-Scale Token-Consistency Benchmarks (GPU Required)**
-   * Navigate to the `benchmarks/` directory and execute `run_real_model_benchmark.py`.
-   * This evaluates Mamba sequence consistency over downstream corpora, generating the raw evaluation CSV data mapping directly to Experiments 1–6 in the manuscript.
+3. **Step 3: Run Convergence Training & Physical Hardware Profiling (GPU & CUDA Required)**
+   * **Dual-Rate Convergence Training**: Navigate to `benchmarks/` and execute:
+     ```bash
+     python run_dual_rate_mamba_experiment.py --steps 2300 --layer 24
+     ```
+     This trains the gated model on WikiText-2 next-token prediction, registering validation perplexity (PPL) and saving converged checkpoints (`t3_gated.pt`, `film_gated.pt`).
+   * **Physical GPU Latency & Energy Profiling**: Run:
+     ```bash
+     python run_real_speed_benchmark.py
+     ```
+     This runs sequential autoregressive text generation, physically bypassing the Cognitive Core ($T_1$) on non-wake steps, while polling physical board-level power draw via NVIDIA NVML (`pynvml`) to yield exact wall-clock speedup (ms/token) and energy savings (mJ/token).
+   * **Adversarial Chattering Stress Test**: Run:
+     ```bash
+     python run_stress_test.py
+     ```
+     This measures the gate stability under high-surprise out-of-distribution text to verify Zeno-free bounds.
 
 ---
 
@@ -44,10 +57,13 @@ This directory contains the Mamba sequence evaluation scripts used to measure fa
 
 | Filename | Mapped Paper Section / Experiment | Core Functionality & Metrics Evaluated |
 | :--- | :--- | :--- |
-| **`run_real_model_benchmark.py`** | **Experiments 3 & 4 (Token Overlap & Consistency)** | **Primary Evaluation Script**. Evaluates pre-trained Hugging Face Mamba models under multi-timescale gating, measuring next-token Top-1 consistency and Top-5 token overlap against monolithic sequence baselines. Saves raw output to `experimental_results/`. |
+| **`run_dual_rate_mamba_experiment.py`** | **Section VI.E (Empirical Dual-Rate Validation)** | **Core Convergence Trainer**. Sweeps hyperparameters, runs convergence training on WikiText-2, tracks validation perplexity (PPL) of Bare T3, Gated, and Oracle baselines, and saves weights. |
+| **`run_real_speed_benchmark.py`** | **Section VI.E (Empirical Dual-Rate Validation)** | **Physical Profiler**. Implements true token-by-token physical Cognitive Core bypassing, hooks NVIDIA NVML to profile live GPU power draw, and logs wall-clock speedup and energy savings. |
+| **`run_stress_test.py`** | **Section VI.E (Domain-Chattering Stress Test)** | **Robustness Evaluator**. Subjects the ETCD gate to out-of-distribution adversarial text to measure wake frequency ceilings and exclude Zeno behavior. |
+| **`run_real_model_benchmark.py`** | **Section V.E (Token Overlap & Consistency)** | Evaluates pre-trained Hugging Face Mamba models under multi-timescale gating, measuring next-token Top-1 consistency and Top-5 token overlap against monolithic sequence baselines. Saves raw output to `experimental_results/`. |
 | **`compare_results.py`** | **Experiment 3 (Averaged Deviation Metrics)** | Reads raw CSVs and computes statistical distributions of NECD deviation, mean overlap scores, Cohen's d effect sizes, and p-values to demonstrate statistical significance. |
-| **`run_parallel_scan_profiling.py`**| **Section 6.3 (Computational Complexity)** | profiles PyTorch sequential step-by-step decoding vs chunk-based parallel scan under hardware-level CPU/GPU kernel launch overheads to analyze the theoretical 13.95x FLOPs compression vs wall-clock latency. |
-| **`run_sandbox_profiling.py`** | **Section 6.4 (Memory & Cache Overhead)** | Measures physical memory footprints of Mamba recurrent states and Transformer KV caches in long-context decoding tasks inside a sandboxed memory tracker. |
+| **`run_parallel_scan_profiling.py`**| **Section VI.C (Computational Complexity)** | Profiles PyTorch sequential step-by-step decoding vs chunk-based parallel scan under hardware-level CPU/GPU kernel launch overheads to analyze the theoretical 13.95x FLOPs compression vs wall-clock latency. |
+| **`run_sandbox_profiling.py`** | **Section VI.C (Memory & Cache Overhead)** | Measures physical memory footprints of Mamba recurrent states and Transformer KV caches in long-context decoding tasks inside a sandboxed memory tracker. |
 | **`continue_experiments.py`** (1 & 2) | **Experimental Utility** | Handles state checkpointing and automatic progress recovery during large-scale corpus evaluation runs. |
 | **`find_fp16_mismatch.py`** | **Experimental Utility** | Traces numerical precision mismatches (FP32 vs FP16) in state-space updates. |
 | **`generate_final_summary.py`** | **Experimental Utility** | Compiles all generated CSV benchmarks into unified LaTeX-ready table summaries. |
