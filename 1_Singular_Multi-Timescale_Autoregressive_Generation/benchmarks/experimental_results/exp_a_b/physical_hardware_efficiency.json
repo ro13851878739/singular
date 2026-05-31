@@ -1,9 +1,114 @@
 {
-  "t_mono_ms_token": 20.165563016666965,
-  "t_gated_ms_token": 2.8473302999979446,
-  "speedup_factor": 7.082270369785171,
-  "wake_percentage": 0.0,
-  "mono_mj_token": 1948.3445126507818,
-  "gated_mj_token": 225.73303219612814,
-  "energy_savings_percentage": 88.41411101935913
+  "sweep_results": [
+    {
+      "label": "Monolithic",
+      "mode": "monolithic",
+      "threshold": null,
+      "ppl": 432.79715295973597,
+      "latency_ms": 20.385968323942404,
+      "energy_mj": 2046.4939718048495,
+      "wake_percentage": 100.0
+    },
+    {
+      "label": "Bare T3",
+      "mode": "bare",
+      "threshold": null,
+      "ppl": 63228.57565091468,
+      "latency_ms": 1.9914857746467967,
+      "energy_mj": 192.5022668887772,
+      "wake_percentage": 0.0
+    },
+    {
+      "label": "Oracle",
+      "mode": "oracle",
+      "threshold": null,
+      "ppl": 25457.56715437656,
+      "latency_ms": 22.774014845068248,
+      "energy_mj": 2310.6568440478163,
+      "wake_percentage": 100.0
+    },
+    {
+      "label": "Gated (Gamma=0.005)",
+      "mode": "gated",
+      "threshold": 0.005,
+      "ppl": 25300.866900960882,
+      "latency_ms": 10.349152042245281,
+      "energy_mj": 1044.6477546621866,
+      "wake_percentage": 35.2112676056338
+    },
+    {
+      "label": "Gated (Gamma=0.010)",
+      "mode": "gated",
+      "threshold": 0.01,
+      "ppl": 23139.736519059737,
+      "latency_ms": 9.051555323950055,
+      "energy_mj": 932.5958803039686,
+      "wake_percentage": 32.3943661971831
+    },
+    {
+      "label": "Gated (Gamma=0.020)",
+      "mode": "gated",
+      "threshold": 0.02,
+      "ppl": 24159.252297582105,
+      "latency_ms": 8.761514267603097,
+      "energy_mj": 905.7709862077509,
+      "wake_percentage": 30.985915492957744
+    },
+    {
+      "label": "Gated (Gamma=0.050)",
+      "mode": "gated",
+      "threshold": 0.05,
+      "ppl": 25050.272805461394,
+      "latency_ms": 7.9439180985964795,
+      "energy_mj": 821.4738231063617,
+      "wake_percentage": 26.76056338028169
+    },
+    {
+      "label": "Gated (Gamma=0.100)",
+      "mode": "gated",
+      "threshold": 0.1,
+      "ppl": 26692.183152238867,
+      "latency_ms": 6.2473071830923725,
+      "energy_mj": 653.2860966798767,
+      "wake_percentage": 18.30985915492958
+    },
+    {
+      "label": "Gated (Gamma=0.200)",
+      "mode": "gated",
+      "threshold": 0.2,
+      "ppl": 26299.324914741715,
+      "latency_ms": 5.933866971837476,
+      "energy_mj": 628.0787618598206,
+      "wake_percentage": 16.901408450704224
+    },
+    {
+      "label": "Gated (Gamma=0.300)",
+      "mode": "gated",
+      "threshold": 0.3,
+      "ppl": 26152.381549114747,
+      "latency_ms": 5.659672183099528,
+      "energy_mj": 604.537722203091,
+      "wake_percentage": 15.492957746478872
+    },
+    {
+      "label": "Gated (Gamma=0.400)",
+      "mode": "gated",
+      "threshold": 0.4,
+      "ppl": 25877.121079152927,
+      "latency_ms": 5.350454056343539,
+      "energy_mj": 562.0536884373751,
+      "wake_percentage": 14.084507042253522
+    }
+  ],
+  "converged_point": {
+    "label": "Gated (Gamma=0.400)",
+    "mode": "gated",
+    "threshold": 0.4,
+    "ppl": 25877.121079152927,
+    "latency_ms": 5.350454056343539,
+    "energy_mj": 562.0536884373751,
+    "wake_percentage": 14.084507042253522
+  },
+  "speedup_factor": 3.8101380012361092,
+  "energy_savings_percentage": 72.53577600613761
 }
