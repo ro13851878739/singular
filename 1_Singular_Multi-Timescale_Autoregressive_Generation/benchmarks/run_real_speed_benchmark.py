@@ -20,6 +20,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import threading
+import json
 from transformers import AutoTokenizer, AutoConfig, AutoModelForCausalLM
 
 # ──────────────────────────────────────────────────────────────────
@@ -304,8 +305,8 @@ def main():
         try:
             with open(results_json, "r") as f:
                 etcd_threshold = json.load(f).get("etcd_threshold", 0.05)
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"  [Warning] Could not load etcd_threshold from results.json ({e}). Using default.")
     print(f"  ETCD Gate Threshold: Γ₀ = {etcd_threshold:.6f}")
 
     # Set up prompt and generation sizes
@@ -373,7 +374,6 @@ def main():
         # Save real energy stats to a JSON results file
         real_stats_file = f"{results_dir}/physical_hardware_efficiency.json"
         with open(real_stats_file, "w") as f:
-            import json
             json.dump({
                 "t_mono_ms_token": (t_mono / max_new_tokens) * 1000,
                 "t_gated_ms_token": (t_gated / max_new_tokens) * 1000,

@@ -1,0 +1,9 @@
+{
+  "t_mono_ms_token": 20.165563016666965,
+  "t_gated_ms_token": 2.8473302999979446,
+  "speedup_factor": 7.082270369785171,
+  "wake_percentage": 0.0,
+  "mono_mj_token": 1948.3445126507818,
+  "gated_mj_token": 225.73303219612814,
+  "energy_savings_percentage": 88.41411101935913
+}

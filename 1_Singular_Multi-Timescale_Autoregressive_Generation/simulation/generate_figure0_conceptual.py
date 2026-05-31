@@ -1,10 +1,11 @@
 """Generate Figure 0: Singular Three-Layer Conceptual Framework Diagram."""
+import os
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 
-OUT = "/Users/chunyuwang/Documents/论文/Pathways to Cyber-Embodied Intelligence - A Theoretical Trilogy/1_Singular_Multi-Timescale_Autoregressive_Generation/figures/fig0_conceptual_framework.png"
+OUT = os.path.dirname(os.path.abspath(__file__)) + "/../figures/fig0_conceptual_framework.png"
 
 fig, ax = plt.subplots(figsize=(12, 8))
 ax.set_xlim(0, 12)
@@ -30,7 +31,7 @@ ax.text(6, 7.5, "Singular Multi-Rate Framework", ha="center", va="center",
         fontsize=18, fontweight="bold", color="white")
 ax.text(6, 7.05, "Architecture-agnostic · Timescale separation via non-linear singular perturbation",
         ha="center", va="center", fontsize=10, color="#BBDEFB")
-ax.text(6, 6.65, "Not every token needs the full model.",
+ax.text(6, 6.65, "Not every token needs the full power.",
         ha="center", va="center", fontsize=12, fontstyle="italic", color="#90CAF9")
 
 # ── Down arrow ──

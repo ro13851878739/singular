@@ -602,7 +602,8 @@ def main():
     
     setup_plot_style()
     
-    base_path = '/Users/chunyuwang/Documents/论文/Pathways to Cyber-Embodied Intelligence - A Theoretical Trilogy/1_Singular_Multi-Timescale_Autoregressive_Generation/figures'
+    import os
+    base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '../figures'))
     
     figures = [
         ('Figure 1: System Architecture', figure1_system_architecture, f'{base_path}/fig1_system_architecture.png'),
