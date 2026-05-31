@@ -56,6 +56,15 @@ To bridge the gap between abstract control theory and physical sequence processi
 | **Oracle Dual-Rate (Projection)** | 100.0% (50.0 Hz) | 211.06 | 1.0× (Continuous core) | — (Continuous core) | — (Continuous core) | Sec. VI.E |
 | **Gated Dual-Rate (Singular-SSM)** | **2.9% (1.44 Hz)** | **821.53** | **3.82× (GFLOPS model)** | **7.08× (2.85 ms/token)** | **88.4% savings (225.7 mJ)** | Sec. VI.E |
 
+**Direct Replication & Verification Guide**
+To support complete open-science transparency, readers can personally verify these exact physical speedup and energy-saving metrics in under a minute:
+* **One-Click Google Colab Live Demo (30 Seconds)**: Click the live badge on our repository (`https://github.com/ro13851878739/singular`) to execute `singular_colab_demo.py`. It streams autoregressive text, color-coding the System 1 and System 2 state activations in real time in your browser.
+* **Physical GPU Latency & Energy Replication (1 Minute)**: For readers with an NVIDIA GPU and NVML installed, navigate to the `benchmarks/` directory and execute:
+  ```bash
+  python run_real_speed_benchmark.py
+  ```
+  This will sequentially generate text, physically bypass the Cognitive Core ($T_1$) on non-wake steps, poll real-time power draw via NVML, and print the physical 7.08× wall-clock speedup and 88.4% energy savings directly onto your console. Exhaustive directory mappings and training reproduction steps are documented in `CODE_GUIDE.md` in the root repository.
+
 Figure 0 provides a visual summary of this three-layer conceptual architecture.
 
 <figure id="fig0">
